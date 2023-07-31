@@ -1,18 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Dealership Review</title>
-    {% load static %}
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Dealership Review</title>
+        {% load static %}
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="styles.css">
+    </head>
 
     <body>
 
-    <!--Add a nav bar here -->
+        <nav class="navbar navbar-dark bg-dark navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Best Car Dealership</a>
+              <div class="collapse navbar-collapse navbar-header">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 navbar-left">
+                  <li class="nav-item">
+                    <a class="nav-link " aria-current="page" href="{% url 'djangoapp:about' %}">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'djangoapp:index' %}">Catalog</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'djangoapp:contact' %}">Contact</a>
+                  </li>
+                </ul>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="text-white btn btn-link" href="#">{{ user.first_name }} ({{ user.username }})</a>
+                    <a class="text-white btn btn-link" href="{% url 'djangoapp:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action = "{% url 'djangoapp:login' %}" method = "post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control form-control focus-ring py-1 px-2 text-decoration-none border rounded-2" placeholder="Username" name="username" >
+                            <input type="password" class="form-control form-control focus-ring py-1 px-2 text-decoration-none border rounded-2" placeholder="Password" name="password" >
+                            <button class="btn btn-primary" type="submit">Login</button>
+                            <a class="text-white btn btn-link" href="{% url 'djangoapp:registration' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+            </div>
+          </nav>
 
-    <!-- Add reviews as cards -->
+        <!-- Review Card Forms -->
+        <div class="container">
+            <h2>Reviews for {{ dealership.full_name }}</h2>
+            <div class="card-columns">
+                {% for words in review_list %}
+                <div class="card" style="width: 18rem;">
+                    {% if words.sentiment == "Positive" %}
+                        <img class="card-img-left" src="{{ MEDIA_URL }}/emoji/positive.png" alt="Card image cap" height="50px">
+                    {% elif words.sentiment == "Negative" %}
+                        <img class="card-img-left" src="{{ MEDIA_URL }}/emoji/negative.png" alt="Card image cap" height="50px">
+                    {% elif words.sentiment == "Neutral" %}
+                        <img class="card-img-left" src="{{ MEDIA_URL }}/emoji/neutral.png" alt="Card image cap" height="50px">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ words.car_make }}, {{ words.car_model }}, {{ words.car_year }}</h5>
+                        <p class="card-text">{{ words.review }}</p>
+                        <p class="card-text">{{ words.name }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% if user.is_authenticated %}
+            <a class="btn btn-primary" href="{% url 'djangoapp:add_review' dealer_id %}">Add A Review</a>
+            {% else %}
+                <a class="btn btn-primary" href="{% url 'djangoapp:registration' %}">Sign Up To Add A Review</a>
+            {% endif %}        
+        </div>
 
+        <div>
+            <footer class="navbar navbar-dark bg-dark d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top" style="position: absolute; width: 100%; bottom: 0">
+                <p class="text-white col-md-4 mb-0 text-body-secondary">© 2023 Best Cars Dealership, INC</p>
+            
+                <ul class="nav col-md-4 justify-content-end">
+                  <li class="nav-item"><a href="{% url 'djangoapp:about' %}" class="text-white nav-link px-2 text-body-secondary">Home</a></li>
+                  <li class="nav-item"><a href="{% url 'djangoapp:index' %}" class="text-white nav-link px-2 text-body-secondary">Catalog</a></li>
+                  <li class="nav-item"><a href="{% url 'djangoapp:contact' %}" class="text-white  nav-link px-2 text-body-secondary">Contact Us</a></li>
+                </ul>
+              </footer>
+        </div>
     </body>
 
 </html>
